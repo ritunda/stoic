@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stoic blog · admin + ads</title>
+    <!-- Font & style - clean, like screenshot -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&family=Source+Serif+4:opsz@8..60&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #f5f2f0;
+            font-family: 'Inter', sans-serif;
+            color: #2b2b2b;
+            line-height: 1.5;
+            padding: 2rem 1.5rem;
+        }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        /* header */
+        .blog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+        .blog-header h1 {
+            font-family: 'Source Serif 4', serif;
+            font-size: 2.2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #2c1810;
+            border-left: 6px solid #b78c6a;
+            padding-left: 1.2rem;
+        }
+        .admin-btn {
+            background: white;
+            border: 1px solid #d4bcac;
+            padding: 0.6rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 500;
+            color: #5e3e2e;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .admin-btn:hover {
+            background: #efe7e1;
+            border-color: #b78c6a;
+        }
+        /* post grid */
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+        /* card exactly like screenshot */
+        .post-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.8rem 1.8rem 2rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+            transition: 0.15s;
+            border: 1px solid #e6dad2;
+            display: flex;
+            flex-direction: column;
+        }
+        .post-card:hover {
+            box-shadow: 0 15px 30px rgba(90, 60, 40, 0.08);
+        }
+        .post-meta {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 1rem;
+            color: #7f6e62;
+        }
+        .post-category {
+            background: #f0eae5;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-weight: 600;
+            color: #5e3e2e;
+        }
+        .post-type {
+            font-weight: 500;
+            color: #9b7b64;
+        }
+        .post-title {
+            font-family: 'Source Serif 4', serif;
+            font-size: 1.7rem;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 1.2rem;
+            color: #2c1810;
+        }
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 1rem 0 0.5rem;
+            font-size: 0.95rem;
+            color: #4f3f34;
+            border-top: 1px dashed #ddcfc4;
+            padding-top: 1rem;
+        }
+        .post-author strong {
+            font-weight: 600;
+            color: #2c1810;
+        }
+        .post-date {
+            margin-left: auto;
+            color: #8b7567;
+            font-size: 0.9rem;
+        }
+        /* ad label */
+        .ad-badge {
+            background: #d1b8a6;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 0.8rem;
+        }
+        /* admin panel (hidden by default) */
+        .admin-panel {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            margin: 2rem 0 3rem;
+            border: 1px solid #d9cabe;
+            box-shadow: 0 12px 30px rgba(70,40,20,0.08);
+        }
+        .admin-tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 1px solid #eedfd5;
+            padding-bottom: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            font-weight: 600;
+            color: #5e4b3c;
+            border-radius: 40px 40px 0 0;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            background: #efe4dc;
+            color: #2c1810;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: #3f2e23;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            border: 1px solid #dacbbf;
+            border-radius: 30px;
+            font-family: 'Inter', sans-serif;
+        }
+        .form-group textarea {
+            border-radius: 24px;
+            resize: vertical;
+        }
+        .btn {
+            background: #2c1810;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 0.8rem;
+            border: 1px solid #2c1810;
+        }
+        .btn-outline {
+            background: white;
+            color: #2c1810;
+        }
+        .post-list-item {
+            background: #faf6f2;
+            border-radius: 60px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .login-overlay {
+            background: rgba(0,0,0,0.3);
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            display: flex;
+            align-items: center; justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(3px);
+        }
+        .login-card {
+            background: white;
+            max-width: 400px;
+            padding: 2.5rem;
+            border-radius: 48px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .hidden {
+            display: none;
+        }
+        .small-note {
+            color: #a48d7c;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        /* ads in sidebar simulation (in grid we show inline) but we'll just insert ad cards between posts */
+        .ad-card {
+            background: #f9f0e9;
+            border: 2px dashed #cfa88e;
+        }
+    </style>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="container" id="app">
+    <!-- public header -->
+    <div class="blog-header">
+        <h1>🧠 stoic principles · anxiety & peace</h1>
+        <button class="admin-btn" id="showLoginBtn">⚙️ admin</button>
+    </div>
+
+    <!-- posts feed -->
+    <div id="postsFeed" class="posts-grid"></div>
+
+    <!-- hidden login modal -->
+    <div id="loginModal" class="login-overlay hidden">
+        <div class="login-card">
+            <h2 style="margin-bottom:1.5rem;">admin access</h2>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="admin@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••">
+            </div>
+            <div style="display:flex; gap:1rem;">
+                <button class="btn" id="loginBtn">Login</button>
+                <button class="btn-outline btn" id="closeLoginBtn">Cancel</button>
+            </div>
+            <div class="small-note">Use Supabase Auth. First user must be created in Supabase dashboard.</div>
+        </div>
+    </div>
+
+    <!-- admin dashboard (hidden by default) -->
+    <div id="adminDashboard" class="admin-panel hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+            <h2 style="font-family:'Source Serif 4';">📋 admin studio</h2>
+            <button class="btn-outline btn" id="logoutBtn">logout</button>
+        </div>
+
+        <!-- tabs -->
+        <div class="admin-tabs">
+            <button class="tab-btn active" id="tabPosts">📄 posts</button>
+            <button class="tab-btn" id="tabAds">📢 ads</button>
+        </div>
+
+        <!-- posts admin panel -->
+        <div id="postsAdmin">
+            <h3>➕ add / edit post</h3>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="postTitle" placeholder="e.g. Stoic Principles Anxiety">
+            </div>
+            <div class="form-group">
+                <label>Content (plain text)</label>
+                <textarea id="postContent" rows="2"></textarea>
+            </div>
+            <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" id="postCategory" placeholder="Self-care / Love / etc">
+                </div>
+                <div class="form-group">
+                    <label>Author</label>
+                    <input type="text" id="postAuthor" placeholder="Jonathan Reyes">
+                </div>
+            </div>
+            <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div class="form-group">
+                    <label>Image URL (optional)</label>
+                    <input type="text" id="postImage" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Type (Article/Blog)</label>
+                    <select id="postType">
+                        <option value="Article">Article</option>
+                        <option value="Blog">Blog</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Date (YYYY-MM-DD)</label>
+                <input type="date" id="postDate">
+            </div>
+            <div>
+                <button class="btn" id="savePostBtn">📌 save post</button>
+                <button class="btn-outline btn" id="cancelEditPost">cancel</button>
+                <span id="editPostId" style="margin-left:1rem; color:#966b4e;"></span>
+            </div>
+
+            <hr style="margin:2rem 0; border-top:2px dotted #decbbd;">
+
+            <h3>📌 existing posts</h3>
+            <div id="postsList"></div>
+        </div>
+
+        <!-- ads admin panel (hidden) -->
+        <div id="adsAdmin" style="display:none;">
+            <h3>📢 manage ads</h3>
+            <div class="form-group">
+                <label>Ad title / text</label>
+                <input type="text" id="adTitle" placeholder="Special offer">
+            </div>
+            <div class="form-group">
+                <label>Image URL</label>
+                <input type="text" id="adImage" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label>Link (URL)</label>
+                <input type="text" id="adLink" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label>Position (sidebar/feed)</label>
+                <select id="adPosition">
+                    <option value="feed">in feed (between posts)</option>
+                    <option value="sidebar">sidebar (not used in this layout, but you can)</option>
+                </select>
+            </div>
+            <div>
+                <button class="btn" id="saveAdBtn">➕ save ad</button>
+                <button class="btn-outline btn" id="cancelAdEdit">reset</button>
+            </div>
+            <hr style="margin:2rem 0;">
+            <h4>active ads</h4>
+            <div id="adsList"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---- SUPABASE CONFIG (replace with your own) ----
+        const SUPABASE_URL = 'https://your-project.supabase.co';  // <-- REPLACE
+        const SUPABASE_ANON_KEY = 'your-anon-key';               // <-- REPLACE
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ---- state ----
+        let posts = [];
+        let ads = [];
+        let editingPostId = null;
+        let currentUser = null; // will hold user object from supabase
+        let adEditId = null;
+
+        // DOM elements
+        const postsFeed = document.getElementById('postsFeed');
+        const loginModal = document.getElementById('loginModal');
+        const adminDashboard = document.getElementById('adminDashboard');
+        const showLoginBtn = document.getElementById('showLoginBtn');
+        const closeLoginBtn = document.getElementById('closeLoginBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPassword = document.getElementById('loginPassword');
+        const tabPosts = document.getElementById('tabPosts');
+        const tabAds = document.getElementById('tabAds');
+        const postsAdmin = document.getElementById('postsAdmin');
+        const adsAdmin = document.getElementById('adsAdmin');
+        const postsListDiv = document.getElementById('postsList');
+        const adsListDiv = document.getElementById('adsList');
+        const savePostBtn = document.getElementById('savePostBtn');
+        const postTitle = document.getElementById('postTitle');
+        const postContent = document.getElementById('postContent');
+        const postCategory = document.getElementById('postCategory');
+        const postAuthor = document.getElementById('postAuthor');
+        const postImage = document.getElementById('postImage');
+        const postType = document.getElementById('postType');
+        const postDate = document.getElementById('postDate');
+        const cancelEditPost = document.getElementById('cancelEditPost');
+        const editPostIdSpan = document.getElementById('editPostId');
+        const saveAdBtn = document.getElementById('saveAdBtn');
+        const adTitle = document.getElementById('adTitle');
+        const adImage = document.getElementById('adImage');
+        const adLink = document.getElementById('adLink');
+        const adPosition = document.getElementById('adPosition');
+        const cancelAdEdit = document.getElementById('cancelAdEdit');
+
+        // ---- helper: show/hide login ----
+        showLoginBtn.addEventListener('click', () => {
+            loginModal.classList.remove('hidden');
+        });
+        closeLoginBtn.addEventListener('click', () => {
+            loginModal.classList.add('hidden');
+        });
+
+        // ---- login with supabase auth ----
+        loginBtn.addEventListener('click', async () => {
+            const email = loginEmail.value.trim();
+            const password = loginPassword.value;
+            if (!email || !password) return alert('Enter credentials');
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                currentUser = data.user;
+                loginModal.classList.add('hidden');
+                adminDashboard.classList.remove('hidden');
+                showLoginBtn.style.display = 'none';
+                loadPostsAndAds(); // load from supabase
+            } catch (err) {
+                alert('Login error: ' + err.message);
+            }
+        });
+
+        // logout
+        logoutBtn.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            currentUser = null;
+            adminDashboard.classList.add('hidden');
+            showLoginBtn.style.display = 'inline-block';
+            postsFeed.innerHTML = ''; // will reload public posts after logout
+            loadPublicPosts(); // reload public feed
+        });
+
+        // check existing session on load
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                currentUser = session.user;
+                adminDashboard.classList.remove('hidden');
+                showLoginBtn.style.display = 'none';
+                loadPostsAndAds();
+            } else {
+                loadPublicPosts();
+            }
+        });
+
+        // ---- load public posts (and ads mixed in) ----
+        async function loadPublicPosts() {
+            // fetch posts from supabase, order by date desc
+            const { data, error } = await supabase
+                .from('posts')
+                .select('*')
+                .order('date', { ascending: false });
+            if (error) {
+                console.warn('error loading posts', error);
+                posts = [];
+            } else {
+                posts = data || [];
+            }
+
+            // fetch ads
+            const { data: adsData, error: adsErr } = await supabase
+                .from('ads')
+                .select('*')
+                .eq('active', true);
+            if (!adsErr) ads = adsData || [];
+
+            renderPublicFeed();
+        }
+
+        function renderPublicFeed() {
+            let html = '';
+            // interleave ads? simple: after every 3 posts insert an ad (if any)
+            const allItems = [];
+            posts.forEach((p, idx) => {
+                allItems.push({ type: 'post', data: p });
+                // insert ad after 3 posts (if ads exist)
+                if ((idx + 1) % 3 === 0 && ads.length > 0) {
+                    const ad = ads[Math.floor(Math.random() * ads.length)];
+                    allItems.push({ type: 'ad', data: ad });
+                }
+            });
+            allItems.forEach(item => {
+                if (item.type === 'post') {
+                    const p = item.data;
+                    html += `<div class="post-card">
+                        <div class="post-meta">
+                            <span class="post-category">${p.category || 'General'}</span>
+                            <span class="post-type">${p.type || 'Article'}</span>
+                        </div>
+                        <div class="post-title">${p.title}</div>
+                        <div class="post-author">
+                            <strong>${p.author || 'Unknown'}</strong>
+                            <span class="post-date">${p.date ? new Date(p.date).toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'}) : ''}</span>
+                        </div>
+                    </div>`;
+                } else {
+                    const ad = item.data;
+                    html += `<div class="post-card ad-card">
+                        <div class="ad-badge">📢 sponsored</div>
+                        <div class="post-title">${ad.title}</div>
+                        <div style="margin:0.5rem 0;">
+                            <img src="${ad.image_url || 'https://via.placeholder.com/300x150?text=Ad'}" style="width:100%; border-radius:16px; max-height:120px; object-fit:cover;">
+                        </div>
+                        <a href="${ad.link || '#'}" target="_blank" style="color:#b75f3a;">learn more →</a>
+                    </div>`;
+                }
+            });
+            postsFeed.innerHTML = html || '<p style="text-align:center;">No posts yet.</p>';
+        }
+
+        // ---- load data for admin (posts & ads) ----
+        async function loadPostsAndAds() {
+            await loadPublicPosts(); // already loads posts and ads into global
+            renderPostsList();
+            renderAdsList();
+        }
+
+        function renderPostsList() {
+            let html = '';
+            posts.forEach(p => {
+                html += `<div class="post-list-item">
+                    <div style="flex:1;"><strong>${p.title}</strong> <span style="color:#946b54;">(${p.date})</span></div>
+                    <div>
+                        <button class="btn-outline btn" style="padding:0.3rem 1.2rem;" onclick="editPost('${p.id}')">✎ edit</button>
+                        <button class="btn-outline btn" style="padding:0.3rem 1.2rem;" onclick="deletePost('${p.id}')">🗑️ del</button>
+                    </div>
+                </div>`;
+            });
+            postsListDiv.innerHTML = html || '<p>No posts. Add one.</p>';
+        }
+
+        function renderAdsList() {
+            let html = '';
+            ads.forEach(a => {
+                html += `<div class="post-list-item">
+                    <div style="flex:1;"><strong>${a.title}</strong> (${a.position})</div>
+                    <div>
+                        <button class="btn-outline btn" style="padding:0.3rem 1.2rem;" onclick="editAd('${a.id}')">✎ edit</button>
+                        <button class="btn-outline btn" style="padding:0.3rem 1.2rem;" onclick="deleteAd('${a.id}')">🗑️ del</button>
+                    </div>
+                </div>`;
+            });
+            adsListDiv.innerHTML = html || '<p>No ads. Create one.</p>';
+        }
+
+        // ---- make functions global for onclick ----
+        window.editPost = (id) => {
+            const post = posts.find(p => p.id === id);
+            if (!post) return;
+            editingPostId = id;
+            postTitle.value = post.title || '';
+            postContent.value = post.content || '';
+            postCategory.value = post.category || '';
+            postAuthor.value = post.author || '';
+            postImage.value = post.image_url || '';
+            postType.value = post.type || 'Article';
+            postDate.value = post.date || '';
+            editPostIdSpan.innerText = `✏️ editing: ${post.title.substring(0,30)}`;
+        };
+
+        window.deletePost = async (id) => {
+            if (!confirm('Delete post?')) return;
+            const { error } = await supabase.from('posts').delete().eq('id', id);
+            if (error) alert(error.message);
+            else loadPostsAndAds();
+        };
+
+        window.editAd = (id) => {
+            const ad = ads.find(a => a.id === id);
+            if (!ad) return;
+            adEditId = id;
+            adTitle.value = ad.title || '';
+            adImage.value = ad.image_url || '';
+            adLink.value = ad.link || '';
+            adPosition.value = ad.position || 'feed';
+        };
+
+        window.deleteAd = async (id) => {
+            if (!confirm('Delete ad?')) return;
+            const { error } = await supabase.from('ads').delete().eq('id', id);
+            if (error) alert(error.message);
+            else loadPostsAndAds();
+        };
+
+        // ---- save post (insert/update) ----
+        savePostBtn.addEventListener('click', async () => {
+            const title = postTitle.value.trim();
+            const content = postContent.value.trim();
+            const category = postCategory.value.trim();
+            const author = postAuthor.value.trim();
+            const image_url = postImage.value.trim() || null;
+            const type = postType.value;
+            const date = postDate.value;
+
+            if (!title || !content || !category || !author || !date) {
+                return alert('Please fill all fields (image optional)');
+            }
+
+            const postData = {
+                title, content, category, author, image_url,
+                type, date
+            };
+
+            if (editingPostId) {
+                const { error } = await supabase.from('posts').update(postData).eq('id', editingPostId);
+                if (error) alert(error.message);
+                else {
+                    editingPostId = null;
+                    editPostIdSpan.innerText = '';
+                }
+            } else {
+                const { error } = await supabase.from('posts').insert([postData]);
+                if (error) alert(error.message);
+            }
+            // reset form
+            postTitle.value = postContent.value = postCategory.value = postAuthor.value = postImage.value = '';
+            postDate.value = '';
+            editingPostId = null;
+            editPostIdSpan.innerText = '';
+            loadPostsAndAds();
+        });
+
+        cancelEditPost.addEventListener('click', () => {
+            editingPostId = null;
+            editPostIdSpan.innerText = '';
+            postTitle.value = postContent.value = postCategory.value = postAuthor.value = postImage.value = '';
+            postDate.value = '';
+        });
+
+        // ---- save ad ----
+        saveAdBtn.addEventListener('click', async () => {
+            const title = adTitle.value.trim();
+            const image_url = adImage.value.trim() || null;
+            const link = adLink.value.trim() || null;
+            const position = adPosition.value;
+
+            if (!title) return alert('Ad title required');
+
+            const adData = { title, image_url, link, position, active: true };
+
+            if (adEditId) {
+                const { error } = await supabase.from('ads').update(adData).eq('id', adEditId);
+                if (error) alert(error.message);
+                adEditId = null;
+            } else {
+                const { error } = await supabase.from('ads').insert([adData]);
+                if (error) alert(error.message);
+            }
+            // reset
+            adTitle.value = adImage.value = adLink.value = '';
+            adPosition.value = 'feed';
+            loadPostsAndAds();
+        });
+
+        cancelAdEdit.addEventListener('click', () => {
+            adEditId = null;
+            adTitle.value = adImage.value = adLink.value = '';
+            adPosition.value = 'feed';
+        });
+
+        // ---- tab switching ----
+        tabPosts.addEventListener('click', () => {
+            tabPosts.classList.add('active');
+            tabAds.classList.remove('active');
+            postsAdmin.style.display = 'block';
+            adsAdmin.style.display = 'none';
+        });
+        tabAds.addEventListener('click', () => {
+            tabAds.classList.add('active');
+            tabPosts.classList.remove('active');
+            postsAdmin.style.display = 'none';
+            adsAdmin.style.display = 'block';
+        });
+
+        // ---- initial public load ----
+        loadPublicPosts();
+
+        // ---- expose functions to window ----
+        window.editPost = editPost;
+        window.deletePost = deletePost;
+        window.editAd = editAd;
+        window.deleteAd = deleteAd;
+    })();
+</script>
+</body>
+</html>
